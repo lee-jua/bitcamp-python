@@ -82,9 +82,9 @@ class Service:
         print('5. 노이즈 코퍼스에서 토큰 추출')
         fname = payload.context + payload.fname
         with open(fname, 'r', encoding='utf-8') as f:
-            self.texts = f.read()
-            self.stopwords = self.stopwords.split(' ')
-        print(f'1단계 결과물 : {self.texts[:10]}')
+            self.stopwords = f.read()
+        self.stopwords = self.stopwords.split(' ')
+        print(f'1단계 결과물 : {self.stopwords[:10]}')
 
     def filtering_text_with_stopword(self):
         print('6. 노이즈 필터링 후 시그널 추출')
@@ -95,13 +95,14 @@ class Service:
     def frequent_text(self):
         print('7. 시그널 중에 사용빈도 정렬')
         self.freqtxt = pd.Series(dict(FreqDist(self.noun_tokens))).sort_values(ascending=False)
-        print(f'{self.freqtxt[.10]}')
+        print(f'{self.freqtxt[:10]}')
 
-    def wordcloud(self,payload):
+
+    def wordcloud(self, payload):
         print('8. 시각화')
         fname = payload.context + payload.fname
         wcloud = WordCloud(fname, relative_scaling=0.2, background_color='white')\
-                .generate(" ".join(self.texts))
+            .generate(" ".join(self.noun_tokens))
         plt.figure(figsize=(12,12))
         plt.imshow(wcloud, interpolation='bilinear')
         plt.axis('off')
@@ -124,10 +125,12 @@ class Controller:
         service.tokenize()
         service.conversion_token()
         service.compound_noun()
-        service.extract_stopword()
+        entity.fname ='stopwords.txt'
+        service.extract_stopword(entity)
         service.filtering_text_with_stopword()
         service.frequent_text()
-        service.wordcloud()
+        entity.fname = 'D2Coding.ttf'
+        service.wordcloud(entity)
 
 def print_menu():
     print('0. Exit\n')
